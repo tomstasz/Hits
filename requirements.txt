@@ -5,3 +5,5 @@ Flask-SQLAlchemy>=2.4.0,<2.5.0
 black=19.3b0
 flask-marshmallow>=0.10.0,<1.0.0
 nose2>=0.9.1,<1.0.0
+marshmallow>=2.19.2
+marshmallow-sqlalchemy>=0.16.2,<0.20.0
