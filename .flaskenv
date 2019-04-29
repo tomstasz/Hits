@@ -1,1 +1,1 @@
-FLASK_APP=eska.py
+FLASK_APP=./api/eska.py

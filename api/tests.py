@@ -1,6 +1,6 @@
 import unittest
 import os
-from eska import app, db, Artists, Hits
+from api.eska import app, db, Artists, Hits
 
 
 class ApiTests(unittest.TestCase):
