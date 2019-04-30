@@ -42,9 +42,9 @@ To populate database with additional fake data:
 ```
 Where "artists" is a number of of artists you want to add and "hits" is a number of hits you want to add. Hits will be automatically assigned to random artists in the database.
 
-If you want to execute tests on the API, use nose or nose2:
+If you want to execute tests on the API, use nose or nose2 in application directory:
 ```sh
 nose2 -v
 ```
-or run tests.py in application directory.
+or run tests.py in your IDE.
 
