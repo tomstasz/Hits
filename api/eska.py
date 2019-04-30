@@ -29,6 +29,7 @@ migrate = Migrate(app, db)
 
 class Artists(db.Model):
     """Artist performing hits"""
+
     __tablename__ = "artists"
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100))
@@ -42,6 +43,7 @@ class Artists(db.Model):
 
 class Hits(db.Model):
     """Hit performed by artist"""
+
     __tablename__ = "hits"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
@@ -59,6 +61,7 @@ class Hits(db.Model):
 
 class ArtistSchema(ma.ModelSchema):
     """Schema to serialize artist objects"""
+
     class Meta:
         model = Artists
         fields = ("id", "first_name", "last_name")
@@ -66,6 +69,7 @@ class ArtistSchema(ma.ModelSchema):
 
 class HitsSchema(ma.ModelSchema):
     """Schema to serialize list of hit objects"""
+
     title_url = AbsoluteURLFor("get_hit_detail", hit_id="<id>")
 
     class Meta:
@@ -75,6 +79,7 @@ class HitsSchema(ma.ModelSchema):
 
 class SingleHitSchema(ma.ModelSchema):
     """Schema to serialize single hit object"""
+
     title_url = AbsoluteURLFor("get_hit_detail", hit_id="<id>")
     artist = Nested(ArtistSchema)
 
@@ -85,6 +90,7 @@ class SingleHitSchema(ma.ModelSchema):
 
 class SimpleHitSchema(ma.ModelSchema):
     """Simplified schema to serialize single hit object"""
+
     artist = Nested(ArtistSchema)
 
     class Meta:
@@ -348,4 +354,4 @@ def populate(artists, hits):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host="0.0.0.0", debug=True)

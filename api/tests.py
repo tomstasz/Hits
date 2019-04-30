@@ -4,7 +4,8 @@ from api.eska import app, db, Artists, Hits
 
 
 class ApiTests(unittest.TestCase):
-    """Test Hits and artists API"""
+    """Test hits and artists API"""
+
     def setUp(self):
         basedir = os.path.abspath(os.path.dirname(__file__))
         app.config["TESTING"] = True
@@ -147,5 +148,5 @@ class ApiTests(unittest.TestCase):
         db.drop_all()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
