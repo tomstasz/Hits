@@ -129,3 +129,7 @@ class ApiTests(unittest.TestCase):
 
     def tearDown(self):
         db.drop_all()
+
+
+if __name__ == '__main__':
+    unittest.main()
