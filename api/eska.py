@@ -28,6 +28,7 @@ migrate = Migrate(app, db)
 
 
 class Artists(db.Model):
+    """Artist performing hits"""
     __tablename__ = "artists"
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100))
@@ -40,6 +41,7 @@ class Artists(db.Model):
 
 
 class Hits(db.Model):
+    """Hit performed by artist"""
     __tablename__ = "hits"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
@@ -56,12 +58,14 @@ class Hits(db.Model):
 
 
 class ArtistSchema(ma.ModelSchema):
+    """Schema to serialize artist objects"""
     class Meta:
         model = Artists
         fields = ("id", "first_name", "last_name")
 
 
 class HitsSchema(ma.ModelSchema):
+    """Schema to serialize list of hit objects"""
     title_url = AbsoluteURLFor("get_hit_detail", hit_id="<id>")
 
     class Meta:
@@ -70,6 +74,7 @@ class HitsSchema(ma.ModelSchema):
 
 
 class SingleHitSchema(ma.ModelSchema):
+    """Schema to serialize single hit object"""
     title_url = AbsoluteURLFor("get_hit_detail", hit_id="<id>")
     artist = Nested(ArtistSchema)
 
@@ -79,6 +84,7 @@ class SingleHitSchema(ma.ModelSchema):
 
 
 class SimpleHitSchema(ma.ModelSchema):
+    """Simplified schema to serialize single hit object"""
     artist = Nested(ArtistSchema)
 
     class Meta:
@@ -91,16 +97,19 @@ class SimpleHitSchema(ma.ModelSchema):
 
 @app.errorhandler(404)
 def not_found(error):
+    """Handle 'not found' errors"""
     return make_response(jsonify({"error": "Not found"}), 404)
 
 
 @app.errorhandler(400)
 def bad_request(error):
+    """Handle 'bad request' errors"""
     return make_response(jsonify({"error": "Bad request"}), 400)
 
 
 @app.errorhandler(500)
-def bad_request(error):
+def server_error_request(error):
+    """Handle server errors"""
     return make_response(jsonify({"error": "Server error"}), 500)
 
 
@@ -109,6 +118,7 @@ def bad_request(error):
 
 @app.route("/api/v1/hits", methods=["GET"])
 def get_hits():
+    """Show list of hits"""
     all_hits = Hits.query.order_by("created_at").limit(20)
     hit_schema = HitsSchema(many=True)
     res = hit_schema.dump(all_hits).data
@@ -118,6 +128,7 @@ def get_hits():
 
 @app.route("/api/v1/hits/<int:hit_id>", methods=["GET"])
 def get_hit_detail(hit_id):
+    """Show single hit details"""
     hit = Hits.query.get(hit_id)
     if not hit:
         abort(404)
@@ -129,6 +140,7 @@ def get_hit_detail(hit_id):
 
 @app.route("/api/v1/hits", methods=["POST"])
 def create_hit():
+    """Add new hit to the database"""
     if (
         not request.json
         or "title" not in request.json
@@ -156,7 +168,7 @@ def create_hit():
 
 @app.route("/api/v1/hits/<int:hit_id>", methods=["PUT"])
 def update_hit(hit_id):
-
+    """Update existing hit"""
     hit = Hits.query.get(int(hit_id))
 
     if not hit:
@@ -196,6 +208,7 @@ def update_hit(hit_id):
 
 @app.route("/api/v1/hits/<int:hit_id>", methods=["DELETE"])
 def delete_hit(hit_id):
+    """Remove hit from the database"""
     hit = Hits.query.get(int(hit_id))
     if not hit:
         abort(404)
@@ -210,6 +223,7 @@ def delete_hit(hit_id):
 
 @app.route("/populate/<int:artists>/<int:hits>", methods=["GET"])
 def populate(artists, hits):
+    """Generate false artists and hits"""
     fake = Factory.create()
     t1 = [
         "Tajemnica",
