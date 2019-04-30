@@ -20,7 +20,7 @@ python eska.py
 
 To run application using Containers:
 
- - enter application directory and build docker container by typing command:
+ - open terminal in the directory with Docker file and type command:
  ```sh
 docker build -t <name-of-your-container> .
 ```
@@ -30,7 +30,7 @@ docker build -t eska_app .
 ```
 - Run container using command:
 ```sh
-docker docker run -p 5000:5000 -rm <name-of-your-container>
+docker docker run -p 5000:5000 --rm <name-of-your-container>
 ```
 
 To populate database with additional fake data:
