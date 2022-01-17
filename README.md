@@ -28,15 +28,15 @@ Example:
 ```sh
 docker build -t hits_app .
 ```
-- Run container using command:
+- run container using command:
 ```sh
 docker run --rm <chosen-image-name>
 ```
 
 To populate database with additional fake data:
 
-- Run application
-- Use URL path:
+- run application
+- use URL path:
 ```sh
 /populate/<int: artists>/<int: hits>
 ```
