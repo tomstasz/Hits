@@ -1,6 +1,8 @@
 import unittest
 import os
-from api.eska import app, db, Artists, Hits
+from .app import db
+from .models import Artists, Hits
+from .views import app
 
 
 class ApiTests(unittest.TestCase):
@@ -9,12 +11,13 @@ class ApiTests(unittest.TestCase):
     def setUp(self):
         basedir = os.path.abspath(os.path.dirname(__file__))
         app.config["TESTING"] = True
-        app.config["DEBUG"] = False
+        app.config["DEBUG"] = True
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////" + os.path.join(
             basedir, "test.db"
         )
+        app.testing = True
         self.app = app.test_client()
-        self.app.testing = True
+
         db.create_all()
         a = Artists(first_name="test name", last_name="test lastname")
         a2 = Artists(first_name="second test name", last_name="second test lastname")
@@ -27,7 +30,6 @@ class ApiTests(unittest.TestCase):
     def test_get_hits_list(self):
         """Test show list of hits"""
         res = self.app.get("/api/v1/hits")
-
         self.assertEqual(res.status_code, 200)
         self.assertEqual(Hits.query.count(), len(res.get_json()["hits"]))
 
@@ -145,6 +147,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
 
     def tearDown(self):
+        db.session.remove()
         db.drop_all()
 
 

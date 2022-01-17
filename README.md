@@ -1,4 +1,4 @@
-# Eska_2
+# Hits
 
 REST API providing endpoints with (mock) list of radio hits (and artists performing them).
 
@@ -15,22 +15,22 @@ flask run
 or
 
 ```sh
-python eska.py
+python3 main.py
 ```
 
-To run application using Containers:
+To run application using containers:
 
  - open terminal in the directory with Docker file and type command:
  ```sh
-docker build -t <name-of-your-container> .
+docker build -t <chosen-image-name> .
 ```
 Example:
 ```sh
-docker build -t eska_app .
+docker build -t hits_app .
 ```
 - Run container using command:
 ```sh
-docker docker run -p 5000:5000 --rm <name-of-your-container>
+docker run --rm <chosen-image-name>
 ```
 
 To populate database with additional fake data:
@@ -42,9 +42,8 @@ To populate database with additional fake data:
 ```
 Where "artists" is a number of of artists you want to add and "hits" is a number of hits you want to add. Hits will be automatically assigned to random artists in the database.
 
-If you want to execute tests on the API, use nose or nose2 in application directory:
+To execute tests, run nose in application directory:
 ```sh
 nose2 -v
 ```
-or run tests.py in your IDE.
 

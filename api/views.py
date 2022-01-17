@@ -1,104 +1,16 @@
-import os
-from datetime import datetime
 from faker import Factory
 from random import choice
 
-from flask import Flask, jsonify, abort, make_response, request
-from flask_marshmallow.fields import AbsoluteURLFor
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-from flask_migrate import Migrate
-from marshmallow.fields import Nested
-
-
-# Setup and config
-
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL"
-) or "sqlite:////" + os.path.join(basedir, "app.db")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
-migrate = Migrate(app, db)
-
-# Models
-
-
-class Artists(db.Model):
-    """Artist performing hits"""
-
-    __tablename__ = "artists"
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100))
-    last_name = db.Column(db.String(100))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    hits = db.relationship("Hits", backref="artist", lazy="dynamic")
-
-    def __repr__(self):
-        return "<Artist {} {}>".format(self.first_name, self.last_name)
-
-
-class Hits(db.Model):
-    """Hit performed by artist"""
-
-    __tablename__ = "hits"
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
-    title_url = db.Column(db.String(120))
-    artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=True, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return "<Hit {}>".format(self.title)
-
-
-# Serializers
-
-
-class ArtistSchema(ma.ModelSchema):
-    """Schema to serialize artist objects"""
-
-    class Meta:
-        model = Artists
-        fields = ("id", "first_name", "last_name")
-
-
-class HitsSchema(ma.ModelSchema):
-    """Schema to serialize list of hit objects"""
-
-    title_url = AbsoluteURLFor("get_hit_detail", hit_id="<id>")
-
-    class Meta:
-        model = Hits
-        fields = ("id", "title", "title_url")
-
-
-class SingleHitSchema(ma.ModelSchema):
-    """Schema to serialize single hit object"""
-
-    title_url = AbsoluteURLFor("get_hit_detail", hit_id="<id>")
-    artist = Nested(ArtistSchema)
-
-    class Meta:
-        model = Hits
-        exclude = ["updated_at"]
-
-
-class SimpleHitSchema(ma.ModelSchema):
-    """Simplified schema to serialize single hit object"""
-
-    artist = Nested(ArtistSchema)
-
-    class Meta:
-        model = Hits
-        fields = ("id", "title", "artist")
-
-
-# Error handlers
+from flask import jsonify, abort, make_response, request
+from .app import app, db
+from .models import (
+    Artists,
+    Hits,
+    ArtistSchema,
+    HitsSchema,
+    SingleHitSchema,
+    SimpleHitSchema,
+)
 
 
 @app.errorhandler(404)
@@ -119,15 +31,12 @@ def server_error_request(error):
     return make_response(jsonify({"error": "Server error"}), 500)
 
 
-# Views
-
-
 @app.route("/api/v1/hits", methods=["GET"])
 def get_hits():
     """Show list of hits"""
     all_hits = Hits.query.order_by("created_at").limit(20)
     hit_schema = HitsSchema(many=True)
-    res = hit_schema.dump(all_hits).data
+    res = hit_schema.dump(all_hits)
 
     return jsonify({"hits": res})
 
@@ -139,8 +48,7 @@ def get_hit_detail(hit_id):
     if not hit:
         abort(404)
     hit_schema = SingleHitSchema()
-    res = hit_schema.dump(hit).data
-
+    res = hit_schema.dump(hit)
     return jsonify({"hit": res})
 
 
@@ -167,7 +75,7 @@ def create_hit():
     db.session.commit()
 
     hit_schema = SimpleHitSchema()
-    res = hit_schema.dump(new_hit).data
+    res = hit_schema.dump(new_hit)
 
     return jsonify({"hit": res}), 201
 
@@ -207,7 +115,7 @@ def update_hit(hit_id):
     db.session.commit()
 
     hit_schema = SingleHitSchema()
-    res = hit_schema.dump(hit).data
+    res = hit_schema.dump(hit)
 
     return jsonify({"hit": res})
 
@@ -351,7 +259,3 @@ def populate(artists, hits):
         db.session.commit()
 
     return jsonify({"database": "populated"})
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
